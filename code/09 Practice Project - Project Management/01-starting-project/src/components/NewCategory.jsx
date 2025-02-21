@@ -1,16 +1,21 @@
 import Input from "./Input";
 import Button from "./Button";
+import {useRef} from "react";
 
-function NewCategory({handleAddCategory, handleCancelCategory}) {
+function NewCategory({handleAddCategory, handleCancelCategory, ref}) {
+    const titleRef = useRef(null);
+    const descriptionRef = useRef(null);
+    const dueDateRef = useRef(null);
+
     return (
         <div className="max-w-2xl mx-auto p-6 bg-black rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-white">New Category</h2>
             
             <div className="space-y-4">
 
-                <Input label="Title" type="text" placeholder="Enter category title" />
-                <Input label="Description" type="textarea" placeholder="Enter category description" />
-                <Input label="Due Date" type="date" placeholder="Enter category due date" />
+                <Input label="Title" type="text" placeholder="Enter category title" ref={titleRef} />
+                <Input label="Description" type="textarea" placeholder="Enter category description" ref={descriptionRef} />
+                <Input label="Due Date" type="date" placeholder="Enter category due date" ref={dueDateRef} />
 
             </div>
 
