@@ -2,10 +2,27 @@ import Input from "./Input";
 import Button from "./Button";
 import {useRef} from "react";
 
-function NewCategory({handleAddCategory, handleCancelCategory, ref}) {
+function NewCategory({handleCancelCategory,handleSaveCategory}) {
     const titleRef = useRef(null);
     const descriptionRef = useRef(null);
     const dueDateRef = useRef(null);
+
+function handleSaveCategoryAction(){
+    console.log(titleRef.current.value);
+    const enteredTitle = titleRef.current.value;
+    console.log(descriptionRef.current.value);  
+    const enteredDescription = descriptionRef.current.value;
+    console.log(dueDateRef.current.value);
+    const enteredDueDate = dueDateRef.current.value;
+
+    handleSaveCategory({
+        title: enteredTitle,
+        description: enteredDescription,
+        dueDate: enteredDueDate,
+    });
+
+}
+
 
     return (
         <div className="max-w-2xl mx-auto p-6 bg-black rounded-lg shadow-lg">
@@ -21,7 +38,7 @@ function NewCategory({handleAddCategory, handleCancelCategory, ref}) {
 
             <menu className="mt-8 flex justify-end gap-4">
                 <li>
-                    <Button variant="primary" onClick={handleAddCategory}>Save</Button>
+                    <Button variant="primary" onClick={handleSaveCategoryAction}>Save</Button>
                 </li>
                 <li>
                     <Button variant="secondary" onClick={handleCancelCategory}>Cancel</Button>

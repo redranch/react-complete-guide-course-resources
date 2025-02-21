@@ -15,6 +15,15 @@ function App() {
     }));
   }
 
+  function handleSaveCategory(newCategory){
+    setCategoryState(prevState => ({
+      ...prevState,
+      newCategoryInProgress: false,
+      categories: [...prevState.categories, newCategory],
+    }));
+  }
+  
+
   function handleCancelCategory(){
     setCategoryState(prevState => ({
       ...prevState,
@@ -22,10 +31,15 @@ function App() {
     }));
   }
 
+  console.log(categoryState.categories);
+
   return (
     <main className="h-screen my-8 flex gap-8">
       <CategoriesSidebar handleAddCategory={handleAddCategory} />
-      {categoryState.newCategoryInProgress ?  <NewCategory handleAddCategory={handleAddCategory} handleCancelCategory={handleCancelCategory} /> : <NoCategorySelected handleAddCategory={handleAddCategory} />}
+      {categoryState.newCategoryInProgress ?  
+      <NewCategory handleAddCategory={handleAddCategory} 
+      handleCancelCategory={handleCancelCategory} 
+      handleSaveCategory={handleSaveCategory} /> : <NoCategorySelected handleAddCategory={handleAddCategory} />}
     </main>
   );
 }
