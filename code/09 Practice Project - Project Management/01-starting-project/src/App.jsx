@@ -4,30 +4,28 @@ import { useState } from "react";
 import NewCategory from "./components/NewCategory";
 function App() {
   const [categoryState, setCategoryState] = useState({
-    newCategoryInProgress: false,
+    isCreating: false,
     categories: []
   });
 
-  function handleAddCategory(){
-    setCategoryState(prevState => ({
-      ...prevState,
-      newCategoryInProgress: true,
+  function showCategoryForm() {
+    setCategoryState(prev => ({
+      ...prev,
+      isCreating: true,
     }));
   }
 
-  function handleSaveCategory(newCategory){
-    setCategoryState(prevState => ({
-      ...prevState,
-      newCategoryInProgress: false,
-      categories: [...prevState.categories, newCategory],
+  function addCategory(newCategory) {
+    setCategoryState(prev => ({
+      isCreating: false,
+      categories: [...prev.categories, newCategory],
     }));
   }
-  
 
-  function handleCancelCategory(){
-    setCategoryState(prevState => ({
-      ...prevState,
-      newCategoryInProgress: false,
+  function cancelCategoryCreation() {
+    setCategoryState(prev => ({
+      ...prev,
+      isCreating: false,
     }));
   }
 
@@ -35,11 +33,11 @@ function App() {
 
   return (
     <main className="h-screen my-8 flex gap-8">
-      <CategoriesSidebar handleAddCategory={handleAddCategory} />
-      {categoryState.newCategoryInProgress ?  
-      <NewCategory handleAddCategory={handleAddCategory} 
-      handleCancelCategory={handleCancelCategory} 
-      handleSaveCategory={handleSaveCategory} /> : <NoCategorySelected handleAddCategory={handleAddCategory} />}
+      <CategoriesSidebar onAddClick={showCategoryForm} />
+      {categoryState.isCreating ?  
+      <NewCategory 
+      onCancel={cancelCategoryCreation} 
+      onSave={addCategory} /> : <NoCategorySelected onAddClick={showCategoryForm} />}
     </main>
   );
 }
