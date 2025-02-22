@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
-
+import Button from './Button';
 const Modal = forwardRef(function Modal({ title, message }, ref) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -17,7 +17,7 @@ const Modal = forwardRef(function Modal({ title, message }, ref) {
   if (!isVisible) return null;
 
   return (
-    <div 
+    <dialog 
       className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
       style={{ backgroundColor: 'rgba(18, 18, 18, 0.8)' }}
     >
@@ -25,7 +25,6 @@ const Modal = forwardRef(function Modal({ title, message }, ref) {
         className="p-6 rounded-lg shadow-xl"
         style={{ 
           backgroundColor: '#2A2A2E',
-          border: '1px solid #008080',
           maxWidth: '400px',
           width: '100%'
         }}
@@ -42,15 +41,14 @@ const Modal = forwardRef(function Modal({ title, message }, ref) {
         >
           {message}
         </p>
-        <button
+        <Button
           onClick={() => setIsVisible(false)}
-          className="px-4 py-2 rounded hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: '#0D3B2E', color: '#EAEAEA' }}
+
         >
           OK
-        </button>
+        </Button>
       </div>
-    </div>
+    </dialog>
   );
 });
 

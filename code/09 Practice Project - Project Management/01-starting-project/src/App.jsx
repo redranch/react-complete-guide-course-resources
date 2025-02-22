@@ -16,6 +16,7 @@ function App() {
   }
 
   function addCategory(newCategory) {
+    newCategory.id = crypto.randomUUID();
     setCategoryState(prev => ({
       isCreating: false,
       categories: [...prev.categories, newCategory],
@@ -33,7 +34,7 @@ function App() {
 
   return (
     <main className="h-screen my-8 flex gap-8">
-      <CategoriesSidebar onAddClick={showCategoryForm} />
+      <CategoriesSidebar onAddClick={showCategoryForm} categories={categoryState.categories} />
       {categoryState.isCreating ?  
       <NewCategory 
       onCancel={cancelCategoryCreation} 
