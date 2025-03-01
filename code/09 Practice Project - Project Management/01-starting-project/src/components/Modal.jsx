@@ -29,32 +29,16 @@ const Modal = forwardRef(function Modal({ title, message }, ref) {
      //button closes the modal, by setting the isVisible state to false, which triggers the if statement in the return statement to return null, and the modal is not rendered
     
   return (
-    <dialog 
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-      style={{ backgroundColor: 'rgba(18, 18, 18, 0.8)' }}
-    >
-      <div 
-        className="p-6 rounded-lg shadow-xl"
-        style={{ 
-          backgroundColor: '#2A2A2E',
-          maxWidth: '400px',
-          width: '100%'
-        }}
-      >
-        <h2 
-          className="text-xl font-bold mb-4"
-          style={{ color: '#EAEAEA' }}
-        >
+    <dialog className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80">
+      <div className="p-6 rounded-lg shadow-xl bg-gray-900 max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4 text-white">
           {title}
         </h2>
-        <p 
-          className="mb-6"
-          style={{ color: '#D1D1D1' }}
-        >
+        <p className="mb-6 text-gray-300">
           {message}
         </p>
-     
         <Button
+          variant="primary"
           onClick={() => setIsVisible(false)}
         >
           OK
