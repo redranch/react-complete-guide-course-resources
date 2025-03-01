@@ -23,7 +23,7 @@ function App() {
     }));
   }
 
-  function cancelCategoryCreation() {
+  function cancelAddCategory() {
     setCategoryState(prev => ({
       ...prev,
       isCreating: false,
@@ -37,7 +37,7 @@ function App() {
       <CategoriesSidebar onAddClick={showCategoryForm} categories={categoryState.categories} />
       {categoryState.isCreating ?  
       <NewCategory 
-      onCancel={cancelCategoryCreation} 
+      onCancel={cancelAddCategory} 
       onSave={addCategory} /> : <NoCategorySelected onAddClick={showCategoryForm} />}
     </main>
   );
