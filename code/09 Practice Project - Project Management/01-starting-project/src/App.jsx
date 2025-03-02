@@ -5,6 +5,17 @@ import NewEditCategory from "./components/categories/NewEditCategory";
 import SelectedCategoryDetails from "./components/categories/SelectedCategoryDetails";
 
 function App() {
+  /**
+   * Main application state using the useState hook
+   * 
+   * This single state object contains:
+   * - isCreating: Boolean flag to show/hide the category creation form
+   * - categories: Array of all category objects in the application
+   * - selectedCategoryId: ID of the currently selected category (or null if none selected)
+   * - categoryToEdit: The category object being edited (or null if not editing)
+   * 
+   * Using a single state object allows us to update multiple related values at once
+   */
   const [categoryState, setCategoryState] = useState({
     isCreating: false,
     categories: [],
@@ -12,6 +23,16 @@ function App() {
     categoryToEdit: null
   });
 
+  /**
+   * Shows the category creation form
+   * 
+   * This function updates the state to:
+   * 1. Set isCreating to true (shows the form)
+   * 2. Clear any selected category (prevents confusion)
+   * 
+   * The spread operator (...prev) copies all existing state values
+   * before overriding specific properties
+   */
   function handleShowCategoryForm() {
     setCategoryState(prev => ({
       ...prev,
@@ -20,6 +41,17 @@ function App() {
     }));
   }
 
+  /**
+   * Adds a new category to the application state
+   * 
+   * @param {Object} newCategory - The category object to add
+   * 
+   * This function:
+   * 1. Generates a unique ID for the category
+   * 2. Adds it to the categories array
+   * 3. Selects the new category automatically
+   * 4. Exits creation mode
+   */
   function handleAddCategory(newCategory) {
     newCategory.id = crypto.randomUUID();
     setCategoryState(prev => ({
@@ -29,6 +61,11 @@ function App() {
     }));
   }
 
+  /**
+   * Cancels category creation and returns to the main view
+   * 
+   * This simply sets isCreating to false while preserving all other state
+   */
   function handleCancelAddCategory() {
     setCategoryState(prev => ({
       ...prev,
@@ -36,6 +73,15 @@ function App() {
     }));
   }
 
+  /**
+   * Selects a category when clicked in the sidebar
+   * 
+   * @param {string} categoryId - The ID of the category to select
+   * 
+   * This function:
+   * 1. Updates the selectedCategoryId
+   * 2. Ensures we're not in creation mode
+   */
   function handleSelectCategory(categoryId) {
     setCategoryState(prev => ({
       ...prev,
@@ -44,6 +90,11 @@ function App() {
     }));
   }
 
+  /**
+   * Returns to the overview/welcome screen
+   * 
+   * This clears the selected category ID, showing the NoCategorySelected component
+   */
   function handleBackToOverview() {
     setCategoryState(prev => ({
       ...prev,
@@ -51,6 +102,13 @@ function App() {
     }));
   }
 
+  /**
+   * Deletes the currently selected category
+   * 
+   * This function:
+   * 1. Filters out the category with the matching ID
+   * 2. Clears the selected category ID (returns to overview)
+   */
   function handleDeleteCategory() {
     setCategoryState(prev => ({
       ...prev,
@@ -59,6 +117,13 @@ function App() {
     }));
   }
   
+  /**
+   * Initiates category editing by setting the categoryToEdit state
+   * 
+   * @param {Object} category - The category object to edit
+   * 
+   * This opens the modal with the edit form
+   */
   function handleEditCategory(category) {
     setCategoryState(prev => ({
       ...prev,
@@ -66,6 +131,16 @@ function App() {
     }));
   }
   
+  /**
+   * Saves changes to an edited category
+   * 
+   * @param {Object} updatedCategory - The modified category object
+   * 
+   * This function:
+   * 1. Finds and replaces the category in the array
+   * 2. Closes the edit modal
+   * 3. Ensures we're still viewing the updated category
+   */
   function handleUpdateCategory(updatedCategory) {
     setCategoryState(prev => ({
       ...prev,
@@ -78,6 +153,9 @@ function App() {
     }));
   }
   
+  /**
+   * Cancels category editing and closes the modal
+   */
   function handleCancelEditCategory() {
     setCategoryState(prev => ({
       ...prev,
@@ -85,6 +163,14 @@ function App() {
     }));
   }
   
+  /**
+   * Updates a category when items are added or removed
+   * 
+   * @param {Object} updatedCategory - The category with modified items
+   * 
+   * This function is passed down to the SelectedCategoryDetails component
+   * to allow updating the parent state when items change
+   */
   function handleUpdateCategoryItems(updatedCategory) {
     setCategoryState(prev => ({
       ...prev,
@@ -94,12 +180,19 @@ function App() {
     }));
   }
 
-  // Find the selected category object
+  // Find the selected category object from the array using its ID
   const selectedCategory = categoryState.categories.find(
     category => category.id === categoryState.selectedCategoryId
   );
 
-  // Determine what to show in the main content area
+  /**
+   * Conditional rendering logic to determine what to show in the main content area
+   * 
+   * Three possible states:
+   * 1. Creating a new category (isCreating is true)
+   * 2. Viewing a selected category (selectedCategory exists)
+   * 3. No category selected (default welcome screen)
+   */
   let mainContent;
   if (categoryState.isCreating) {
     mainContent = (
@@ -138,6 +231,7 @@ function App() {
         {mainContent}
       </main>
       
+      {/* Modal for editing categories - only rendered when categoryToEdit exists */}
       {categoryState.categoryToEdit && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-10 overflow-y-auto py-8">
           <div className="bg-gray-900 p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
