@@ -1,8 +1,9 @@
 import CategoriesSidebar from "./components/layout/CategoriesSidebar";
 import NoCategorySelected from "./components/layout/NoCategorySelected";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NewEditCategory from "./components/categories/NewEditCategory";
 import SelectedCategoryDetails from "./components/categories/SelectedCategoryDetails";
+import { saveCategories, loadCategories, exportCategoriesToFile, importCategoriesFromFile } from "./utils/storage";
 
 function App() {
   /**
@@ -13,6 +14,7 @@ function App() {
    * - categories: Array of all category objects in the application
    * - selectedCategoryId: ID of the currently selected category (or null if none selected)
    * - categoryToEdit: The category object being edited (or null if not editing)
+   * - isImporting: Boolean flag to show/hide the file import input
    * 
    * Using a single state object allows us to update multiple related values at once
    */
@@ -20,8 +22,38 @@ function App() {
     isCreating: false,
     categories: [],
     selectedCategoryId: null,
-    categoryToEdit: null
+    categoryToEdit: null,
+    isImporting: false
   });
+
+  /**
+   * Effect hook to load categories from localStorage when the app starts
+   * 
+   * This runs once when the component mounts (empty dependency array)
+   * and loads any previously saved categories from localStorage
+   */
+  useEffect(() => {
+    const savedCategories = loadCategories();
+    if (savedCategories && savedCategories.length > 0) {
+      setCategoryState(prev => ({
+        ...prev,
+        categories: savedCategories
+      }));
+    }
+  }, []);
+
+  /**
+   * Effect hook to save categories to localStorage whenever they change
+   * 
+   * This runs whenever the categories array changes, ensuring
+   * that the localStorage is always up-to-date with the latest data
+   */
+  useEffect(() => {
+    // Only save if we have categories and they've been initialized
+    if (categoryState.categories.length > 0) {
+      saveCategories(categoryState.categories);
+    }
+  }, [categoryState.categories]);
 
   /**
    * Shows the category creation form
@@ -180,6 +212,60 @@ function App() {
     }));
   }
 
+  /**
+   * Exports the current categories to a JSON file
+   * 
+   * This uses the exportCategoriesToFile utility function to
+   * create and download a JSON file with the current categories data
+   */
+  function handleExportData() {
+    exportCategoriesToFile(categoryState.categories);
+  }
+
+  /**
+   * Toggles the file import interface
+   */
+  function handleToggleImport() {
+    setCategoryState(prev => ({
+      ...prev,
+      isImporting: !prev.isImporting
+    }));
+  }
+
+  /**
+   * Handles the file selection for importing categories
+   * 
+   * @param {Event} event - The file input change event
+   */
+  async function handleFileImport(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const importedCategories = await importCategoriesFromFile(file);
+      
+      // Ensure each category has a valid ID
+      const processedCategories = importedCategories.map(category => {
+        if (!category.id) {
+          return { ...category, id: crypto.randomUUID() };
+        }
+        return category;
+      });
+
+      setCategoryState(prev => ({
+        ...prev,
+        categories: processedCategories,
+        isImporting: false,
+        selectedCategoryId: null
+      }));
+    } catch (error) {
+      alert(`Error importing file: ${error.message}`);
+    }
+    
+    // Reset the file input
+    event.target.value = null;
+  }
+
   // Find the selected category object from the array using its ID
   const selectedCategory = categoryState.categories.find(
     category => category.id === categoryState.selectedCategoryId
@@ -216,7 +302,16 @@ function App() {
       />
     );
   } else {
-    mainContent = <NoCategorySelected onAddClick={handleShowCategoryForm} />;
+    mainContent = (
+      <NoCategorySelected 
+        onAddClick={handleShowCategoryForm} 
+        onExportData={handleExportData}
+        onToggleImport={handleToggleImport}
+        isImporting={categoryState.isImporting}
+        onFileImport={handleFileImport}
+        hasCategories={categoryState.categories.length > 0}
+      />
+    );
   }
 
   return (
@@ -227,6 +322,8 @@ function App() {
           categories={categoryState.categories} 
           onSelectCategory={handleSelectCategory}
           selectedCategoryId={categoryState.selectedCategoryId}
+          onExportData={handleExportData}
+          onToggleImport={handleToggleImport}
         />
         {mainContent}
       </main>

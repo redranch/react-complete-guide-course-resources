@@ -1,0 +1,33 @@
+[
+  {
+    "title": "Health",
+    "description": "health",
+    "dueDate": "2025-03-02",
+    "subcategories": [
+      {
+        "id": "827ac170-6647-4566-9adf-6a9847ca230a",
+        "name": "Diet",
+        "items": [],
+        "subcategories": [
+          {
+            "id": "a54785b6-4e9b-4818-af82-da8400342626",
+            "name": "Breakfast",
+            "items": []
+          },
+          {
+            "id": "ce642e52-52ec-469c-8b18-401ad0891778",
+            "name": "Lunch",
+            "items": []
+          }
+        ]
+      },
+      {
+        "id": "7fa1bc44-5108-4ac2-a7bb-3aadc5f22c8c",
+        "name": "Exercise",
+        "items": [],
+        "subcategories": []
+      }
+    ],
+    "id": "7b62b0d3-960e-4c9a-98eb-0f15942b97be"
+  }
+]
