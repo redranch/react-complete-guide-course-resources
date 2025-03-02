@@ -84,6 +84,15 @@ function App() {
       categoryToEdit: null
     }));
   }
+  
+  function handleUpdateCategoryItems(updatedCategory) {
+    setCategoryState(prev => ({
+      ...prev,
+      categories: prev.categories.map(category => 
+        category.id === updatedCategory.id ? updatedCategory : category
+      )
+    }));
+  }
 
   // Find the selected category object
   const selectedCategory = categoryState.categories.find(
@@ -110,6 +119,7 @@ function App() {
         onBackClick={handleBackToOverview} 
         onDelete={handleDeleteCategory}
         onEdit={handleEditCategory}
+        onUpdateItems={handleUpdateCategoryItems}
       />
     );
   } else {

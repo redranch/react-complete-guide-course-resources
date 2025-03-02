@@ -1,11 +1,13 @@
 import Button from "./Button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
-function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
+function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUpdateItems }) {
   const [isEditingDate, setIsEditingDate] = useState(false);
   const [dueDate, setDueDate] = useState(category.dueDate);
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState(null);
+  const [updatedCategory, setUpdatedCategory] = useState(category);
+  const itemInputRef = useRef(null);
   
   const formattedDate = new Date(dueDate).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -13,25 +15,40 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
     day: 'numeric'
   });
 
+  // Update local state when category prop changes
+  useEffect(() => {
+    setUpdatedCategory(category);
+    setDueDate(category.dueDate);
+  }, [category]);
+
   function handleDateChange(e) {
-    setDueDate(e.target.value);
-    // Here you would typically update the category in the parent component
-    // For example: onUpdateCategory({ ...category, dueDate: e.target.value });
+    const newDate = e.target.value;
+    setDueDate(newDate);
+    
+    // Update the category with the new date
+    const updatedCategoryData = {
+      ...updatedCategory,
+      dueDate: newDate
+    };
+    
+    setUpdatedCategory(updatedCategoryData);
+    // Update the parent component
+    onUpdateItems(updatedCategoryData);
     setIsEditingDate(false);
   }
   
   // Reset selected subcategories when category changes
   useEffect(() => {
     // Reset main subcategory selection when category changes
-    if (!category.subcategories?.find(sub => sub.id === selectedSubcategory?.id)) {
+    if (!updatedCategory.subcategories?.find(sub => sub.id === selectedSubcategory?.id)) {
       setSelectedSubcategory(null);
       setSelectedNestedSubcategory(null);
     }
     // If category has subcategories but none is selected, select the first one
-    else if (category.subcategories?.length > 0 && !selectedSubcategory) {
-      setSelectedSubcategory(category.subcategories[0]);
+    else if (updatedCategory.subcategories?.length > 0 && !selectedSubcategory) {
+      setSelectedSubcategory(updatedCategory.subcategories[0]);
     }
-  }, [category, selectedSubcategory]);
+  }, [updatedCategory, selectedSubcategory]);
   
   // Reset nested subcategory when parent subcategory changes
   useEffect(() => {
@@ -45,6 +62,145 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
       }
     }
   }, [selectedSubcategory]);
+
+  // Function to add an item to the selected subcategory or nested subcategory
+  function handleAddItem() {
+    if (!itemInputRef.current || !itemInputRef.current.value.trim()) return;
+    
+    const itemText = itemInputRef.current.value.trim();
+    const newItem = {
+      id: crypto.randomUUID(),
+      text: itemText
+    };
+    
+    let newSubcategories;
+    
+    if (selectedNestedSubcategory) {
+      // Add to nested subcategory
+      newSubcategories = updatedCategory.subcategories.map(subcat => {
+        if (subcat.id === selectedSubcategory.id) {
+          const updatedNestedSubcategories = subcat.subcategories.map(nestedSub => {
+            if (nestedSub.id === selectedNestedSubcategory.id) {
+              return {
+                ...nestedSub,
+                items: [...(nestedSub.items || []), newItem]
+              };
+            }
+            return nestedSub;
+          });
+          
+          return {
+            ...subcat,
+            subcategories: updatedNestedSubcategories
+          };
+        }
+        return subcat;
+      });
+    } else if (selectedSubcategory) {
+      // Add to main subcategory
+      newSubcategories = updatedCategory.subcategories.map(subcat => {
+        if (subcat.id === selectedSubcategory.id) {
+          return {
+            ...subcat,
+            items: [...(subcat.items || []), newItem]
+          };
+        }
+        return subcat;
+      });
+    } else {
+      return; // No subcategory selected
+    }
+    
+    const updatedCategoryData = {
+      ...updatedCategory,
+      subcategories: newSubcategories
+    };
+    
+    setUpdatedCategory(updatedCategoryData);
+    
+    // Update the selected subcategory and nested subcategory references
+    const updatedSelectedSubcategory = updatedCategoryData.subcategories.find(
+      sub => sub.id === selectedSubcategory.id
+    );
+    setSelectedSubcategory(updatedSelectedSubcategory);
+    
+    if (selectedNestedSubcategory) {
+      const updatedNestedSubcategory = updatedSelectedSubcategory.subcategories.find(
+        nestedSub => nestedSub.id === selectedNestedSubcategory.id
+      );
+      setSelectedNestedSubcategory(updatedNestedSubcategory);
+    }
+    
+    // Clear the input
+    itemInputRef.current.value = '';
+    
+    // Update the parent component
+    onUpdateItems(updatedCategoryData);
+  }
+  
+  // Function to remove an item
+  function handleRemoveItem(itemId) {
+    let newSubcategories;
+    
+    if (selectedNestedSubcategory) {
+      // Remove from nested subcategory
+      newSubcategories = updatedCategory.subcategories.map(subcat => {
+        if (subcat.id === selectedSubcategory.id) {
+          const updatedNestedSubcategories = subcat.subcategories.map(nestedSub => {
+            if (nestedSub.id === selectedNestedSubcategory.id) {
+              return {
+                ...nestedSub,
+                items: (nestedSub.items || []).filter(item => item.id !== itemId)
+              };
+            }
+            return nestedSub;
+          });
+          
+          return {
+            ...subcat,
+            subcategories: updatedNestedSubcategories
+          };
+        }
+        return subcat;
+      });
+    } else if (selectedSubcategory) {
+      // Remove from main subcategory
+      newSubcategories = updatedCategory.subcategories.map(subcat => {
+        if (subcat.id === selectedSubcategory.id) {
+          return {
+            ...subcat,
+            items: (subcat.items || []).filter(item => item.id !== itemId)
+          };
+        }
+        return subcat;
+      });
+    } else {
+      return; // No subcategory selected
+    }
+    
+    const updatedCategoryData = {
+      ...updatedCategory,
+      subcategories: newSubcategories
+    };
+    
+    setUpdatedCategory(updatedCategoryData);
+    
+    // Update the selected subcategory and nested subcategory references
+    const updatedSelectedSubcategory = updatedCategoryData.subcategories.find(
+      sub => sub.id === selectedSubcategory.id
+    );
+    setSelectedSubcategory(updatedSelectedSubcategory);
+    
+    if (selectedNestedSubcategory) {
+      const updatedNestedSubcategory = updatedSelectedSubcategory.subcategories.find(
+        nestedSub => nestedSub.id === selectedNestedSubcategory.id
+      );
+      setSelectedNestedSubcategory(updatedNestedSubcategory);
+    }
+    
+    // Update the parent component
+    onUpdateItems(updatedCategoryData);
+  }
 
   // Determine which content to display based on selections
   const getContentToDisplay = () => {
@@ -71,12 +227,12 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
       <div className="w-full max-w-3xl">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-white font-sans">
-            {category.title}
+            {updatedCategory.title}
           </h1>
           <div className="flex gap-3">
             <Button 
               variant="secondary" 
-              onClick={() => onEdit(category)}
+              onClick={() => onEdit(updatedCategory)}
             >
               Edit
             </Button>
@@ -97,7 +253,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
         
         <div className="mb-6 p-4 rounded bg-gray-900 border-l-4 border-red-800">
           <h2 className="text-xl mb-2 text-white">Description</h2>
-          <p className="text-gray-300 bg-black p-3 rounded">{category.description}</p>
+          <p className="text-gray-300 bg-black p-3 rounded">{updatedCategory.description}</p>
         </div>
         
         <div className="p-4 rounded bg-gray-900 mb-6">
@@ -125,13 +281,13 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
         </div>
         
         {/* Subcategories Section */}
-        {category.subcategories && category.subcategories.length > 0 ? (
+        {updatedCategory.subcategories && updatedCategory.subcategories.length > 0 ? (
           <div className="mt-6">
             <h2 className="text-xl mb-4 text-white">Subcategories</h2>
             
             {/* Main Subcategory Tabs */}
             <div className="flex border-b border-gray-800 mb-4 overflow-x-auto pb-1">
-              {category.subcategories.map(subcategory => (
+              {updatedCategory.subcategories.map(subcategory => (
                 <button
                   key={subcategory.id}
                   onClick={() => setSelectedSubcategory(subcategory)}
@@ -168,20 +324,45 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit }) {
             {/* Content Display */}
             {contentToDisplay ? (
               <div className="bg-gray-900 p-4 rounded">
-                <h3 className="text-lg font-medium mb-3 text-white">{contentToDisplay.title}</h3>
+                {/* Item Input Form */}
+                <div className="mb-4 flex gap-2">
+                  <input
+                    type="text"
+                    ref={itemInputRef}
+                    placeholder="Add a new item..."
+                    className="flex-1 p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleAddItem();
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={handleAddItem}
+                  >
+                    Add Item
+                  </Button>
+                </div>
                 
                 {contentToDisplay.items.length > 0 ? (
                   <ul className="space-y-2">
                     {contentToDisplay.items.map(item => (
-                      <li key={item.id} className="bg-black p-3 rounded text-gray-300">
-                        {item.text}
+                      <li key={item.id} className="bg-black p-3 rounded text-gray-300 flex justify-between items-center">
+                        <span>{item.text}</span>
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          Remove
+                        </button>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <p className="text-gray-400 italic bg-black p-3 rounded">
                     No items in this {selectedNestedSubcategory ? "nested subcategory" : "subcategory"} yet. 
-                    Edit the category to add items.
+                    Add items using the form above.
                   </p>
                 )}
               </div>

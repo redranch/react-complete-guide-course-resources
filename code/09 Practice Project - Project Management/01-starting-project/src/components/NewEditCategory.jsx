@@ -9,7 +9,6 @@ function NewEditCategory({ onCancel, onSave, initialData, isEditing }) {
     const dueDateRef = useRef(null);
     const subcategoryInputRef = useRef(null);
     const nestedSubcategoryInputRef = useRef(null);
-    const itemInputRef = useRef(null);
     const modalRef = useRef(null);
     
     const [subcategories, setSubcategories] = useState([]);
@@ -155,44 +154,6 @@ function NewEditCategory({ onCancel, onSave, initialData, isEditing }) {
         }));
     }
     
-    function handleAddItem() {
-        if (!selectedSubcategoryId) return;
-        
-        const itemText = itemInputRef.current.value.trim();
-        if (!itemText) return;
-        
-        setSubcategories(prev => prev.map(subcategory => {
-            if (subcategory.id === selectedSubcategoryId) {
-                return {
-                    ...subcategory,
-                    items: [
-                        ...subcategory.items,
-                        {
-                            id: crypto.randomUUID(),
-                            text: itemText
-                        }
-                    ]
-                };
-            }
-            return subcategory;
-        }));
-        
-        // Clear the input
-        itemInputRef.current.value = '';
-    }
-    
-    function handleRemoveItem(subcategoryId, itemId) {
-        setSubcategories(prev => prev.map(subcategory => {
-            if (subcategory.id === subcategoryId) {
-                return {
-                    ...subcategory,
-                    items: subcategory.items.filter(item => item.id !== itemId)
-                };
-            }
-            return subcategory;
-        }));
-    }
-    
     // Get the currently selected subcategory
     const selectedSubcategory = subcategories.find(sub => sub.id === selectedSubcategoryId);
 
@@ -327,44 +288,12 @@ function NewEditCategory({ onCancel, onSave, initialData, isEditing }) {
                                             </div>
                                         )}
                                         
-                                        {/* Items Section */}
-                                        <h5 className="text-sm font-medium mb-2 text-white">
-                                            Items in "{selectedSubcategory.name}"
-                                        </h5>
-                                        
-                                        <div className="flex gap-2 mb-3">
-                                            <Input 
-                                                label="" 
-                                                type="text" 
-                                                placeholder="Enter item text" 
-                                                ref={itemInputRef}
-                                            />
-                                            <Button 
-                                                variant="secondary" 
-                                                onClick={handleAddItem}
-                                                className="mt-auto"
-                                            >
-                                                Add
-                                            </Button>
+                                        {/* Note about items */}
+                                        <div className="mt-4 bg-gray-800 p-3 rounded">
+                                            <p className="text-gray-400 italic text-sm">
+                                                Items can be added to subcategories after creating the category.
+                                            </p>
                                         </div>
-                                        
-                                        {selectedSubcategory.items.length > 0 ? (
-                                            <ul className="space-y-2 bg-black p-2 rounded max-h-40 overflow-y-auto">
-                                                {selectedSubcategory.items.map(item => (
-                                                    <li key={item.id} className="flex justify-between items-center p-2 border-b border-gray-800">
-                                                        <span className="text-gray-300">{item.text}</span>
-                                                        <button 
-                                                            onClick={() => handleRemoveItem(selectedSubcategory.id, item.id)}
-                                                            className="text-red-500 hover:text-red-700 text-sm"
-                                                        >
-                                                            Remove
-                                                        </button>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <p className="text-gray-400 italic">No items added yet</p>
-                                        )}
                                     </div>
                                 )}
                             </div>
