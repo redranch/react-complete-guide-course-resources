@@ -2,7 +2,7 @@ import CategoriesSidebar from "./components/CategoriesSidebar";
 import NoCategorySelected from "./components/NoCategorySelected";
 import { useState } from "react";
 import NewCategory from "./components/NewCategory";
-import CategoryDetails from "./components/CategoryDetails";
+import SelectedCategoryDetails from "./components/SelectedCategoryDetails";
 
 function App() {
   const [categoryState, setCategoryState] = useState({
@@ -50,6 +50,13 @@ function App() {
     }));
   }
 
+  function handleDeleteCategory() {
+    setCategoryState(prev => ({
+      ...prev,
+      categories: prev.categories.filter(category => category.id !== categoryState.selectedCategoryId)
+    }));
+  }
+
   // Find the selected category object
   const selectedCategory = categoryState.categories.find(
     category => category.id === categoryState.selectedCategoryId
@@ -60,7 +67,7 @@ function App() {
   if (categoryState.isCreating) {
     mainContent = <NewCategory onCancel={handleCancelAddCategory} onSave={handleAddCategory} />;
   } else if (selectedCategory) {
-    mainContent = <CategoryDetails category={selectedCategory} onBackClick={handleBackToOverview} />;
+mainContent = <SelectedCategoryDetails category={selectedCategory} onBackClick={handleBackToOverview} onDelete={handleDeleteCategory}         />;
   } else {
     mainContent = <NoCategorySelected onAddClick={handleShowCategoryForm} />;
   }
