@@ -223,7 +223,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
   const contentToDisplay = getContentToDisplay();
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto">
+    <div className="flex-1 p-8 overflow-y-auto scrollbar-thin">
       <div className="w-full max-w-3xl">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-white font-sans">
@@ -286,7 +286,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
             <h2 className="text-xl mb-4 text-white">Subcategories</h2>
             
             {/* Main Subcategory Tabs */}
-            <div className="flex border-b border-gray-800 mb-4 overflow-x-auto pb-1">
+            <div className="flex border-b border-gray-800 mb-4 overflow-x-auto scrollbar-thin pb-1">
               {updatedCategory.subcategories.map(subcategory => (
                 <button
                   key={subcategory.id}
@@ -304,7 +304,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
             
             {/* Nested Subcategory Tabs (only if selected subcategory has nested subcategories) */}
             {selectedSubcategory && selectedSubcategory.subcategories && selectedSubcategory.subcategories.length > 0 && (
-              <div className="flex border-b border-gray-800 mb-4 pl-4 overflow-x-auto pb-1">
+              <div className="flex border-b border-gray-800 mb-4 pl-4 overflow-x-auto scrollbar-thin pb-1">
                 {selectedSubcategory.subcategories.map(nestedSub => (
                   <button
                     key={nestedSub.id}
@@ -346,7 +346,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
                 </div>
                 
                 {contentToDisplay.items.length > 0 ? (
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 max-h-80 overflow-y-auto scrollbar-thin">
                     {contentToDisplay.items.map(item => (
                       <li key={item.id} className="bg-black p-3 rounded text-gray-300 flex justify-between items-center">
                         <span>{item.text}</span>
