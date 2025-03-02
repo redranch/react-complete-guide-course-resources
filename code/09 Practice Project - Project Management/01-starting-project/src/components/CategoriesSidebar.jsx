@@ -2,14 +2,18 @@ import Button from "./Button";
 
 function CategoriesSidebar({ onAddClick, categories, onSelectCategory, selectedCategoryId }) {
     return (
-        <aside className="bg-black md:w-72 h-full p-4 text-gray-100 border-r border-gray-800">
-            <div className="flex justify-between items-center mb-6">
+        <aside className="bg-black md:w-72 h-full border-r border-gray-800">
+            <div className="p-8 pb-4 flex justify-between items-center">
                 <h2 className="text-3xl font-bold text-white font-sans">Categories</h2>
+                <button 
+                    onClick={onAddClick}
+                    className="w-8 h-8 rounded-full bg-red-800 text-white flex items-center justify-center hover:bg-red-900 transition-colors"
+                    title="Add Category"
+                >
+                    <span className="text-xl font-bold">+</span>
+                </button>
             </div>
-            <div className="bg-black p-2 flex justify-end items-center mb-4">
-                <Button variant="primary" onClick={onAddClick}>Add Category</Button>
-            </div>
-            <ul className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-180px)]">
+            <ul className="px-8 space-y-2 overflow-y-auto max-h-[calc(100vh-120px)]">
                 {categories.map((category) => (
                     <li 
                         key={category.id} 

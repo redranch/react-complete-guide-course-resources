@@ -8,7 +8,8 @@ function App() {
   const [categoryState, setCategoryState] = useState({
     isCreating: false,
     categories: [],
-    selectedCategoryId: null
+    selectedCategoryId: null,
+    categoryToEdit: null
   });
 
   function handleShowCategoryForm() {
@@ -53,7 +54,32 @@ function App() {
   function handleDeleteCategory() {
     setCategoryState(prev => ({
       ...prev,
+      selectedCategoryId: null,
       categories: prev.categories.filter(category => category.id !== categoryState.selectedCategoryId)
+    }));
+  }
+  
+  function handleEditCategory(category) {
+    setCategoryState(prev => ({
+      ...prev,
+      categoryToEdit: category
+    }));
+  }
+  
+  function handleUpdateCategory(updatedCategory) {
+    setCategoryState(prev => ({
+      ...prev,
+      categoryToEdit: null,
+      categories: prev.categories.map(category => 
+        category.id === updatedCategory.id ? updatedCategory : category
+      )
+    }));
+  }
+  
+  function handleCancelEditCategory() {
+    setCategoryState(prev => ({
+      ...prev,
+      categoryToEdit: null
     }));
   }
 
@@ -67,21 +93,44 @@ function App() {
   if (categoryState.isCreating) {
     mainContent = <NewCategory onCancel={handleCancelAddCategory} onSave={handleAddCategory} />;
   } else if (selectedCategory) {
-mainContent = <SelectedCategoryDetails category={selectedCategory} onBackClick={handleBackToOverview} onDelete={handleDeleteCategory}         />;
+    mainContent = (
+      <SelectedCategoryDetails 
+        category={selectedCategory} 
+        onBackClick={handleBackToOverview} 
+        onDelete={handleDeleteCategory}
+        onEdit={handleEditCategory}
+      />
+    );
   } else {
     mainContent = <NoCategorySelected onAddClick={handleShowCategoryForm} />;
   }
 
   return (
-    <main className="h-screen flex bg-black text-gray-100">
-      <CategoriesSidebar 
-        onAddClick={handleShowCategoryForm} 
-        categories={categoryState.categories} 
-        onSelectCategory={handleSelectCategory}
-        selectedCategoryId={categoryState.selectedCategoryId}
-      />
-      {mainContent}
-    </main>
+    <>
+      <main className="h-screen flex bg-black text-gray-100">
+        <CategoriesSidebar 
+          onAddClick={handleShowCategoryForm} 
+          categories={categoryState.categories} 
+          onSelectCategory={handleSelectCategory}
+          selectedCategoryId={categoryState.selectedCategoryId}
+        />
+        {mainContent}
+      </main>
+      
+      {categoryState.categoryToEdit && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-10">
+          <div className="bg-gray-900 p-6 rounded-lg shadow-xl max-w-2xl w-full">
+            <h2 className="text-2xl font-bold mb-6 text-white">Edit Category</h2>
+            <NewCategory 
+              initialData={categoryState.categoryToEdit}
+              onCancel={handleCancelEditCategory} 
+              onSave={handleUpdateCategory} 
+              isEditing={true}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
