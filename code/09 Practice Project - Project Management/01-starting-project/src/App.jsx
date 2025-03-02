@@ -1,7 +1,7 @@
 import CategoriesSidebar from "./components/CategoriesSidebar";
 import NoCategorySelected from "./components/NoCategorySelected";
 import { useState } from "react";
-import NewCategory from "./components/NewCategory";
+import NewEditCategory from "./components/NewEditCategory";
 import SelectedCategoryDetails from "./components/SelectedCategoryDetails";
 
 function App() {
@@ -72,7 +72,9 @@ function App() {
       categoryToEdit: null,
       categories: prev.categories.map(category => 
         category.id === updatedCategory.id ? updatedCategory : category
-      )
+      ),
+      // Ensure we're still viewing the updated category
+      selectedCategoryId: updatedCategory.id
     }));
   }
   
@@ -91,7 +93,16 @@ function App() {
   // Determine what to show in the main content area
   let mainContent;
   if (categoryState.isCreating) {
-    mainContent = <NewCategory onCancel={handleCancelAddCategory} onSave={handleAddCategory} />;
+    mainContent = (
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="w-full max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-white sticky top-0 bg-black py-2 z-10">
+            New Category
+          </h2>
+          <NewEditCategory onCancel={handleCancelAddCategory} onSave={handleAddCategory} />
+        </div>
+      </div>
+    );
   } else if (selectedCategory) {
     mainContent = (
       <SelectedCategoryDetails 
@@ -118,10 +129,10 @@ function App() {
       </main>
       
       {categoryState.categoryToEdit && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-10">
-          <div className="bg-gray-900 p-6 rounded-lg shadow-xl max-w-2xl w-full">
-            <h2 className="text-2xl font-bold mb-6 text-white">Edit Category</h2>
-            <NewCategory 
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-10 overflow-y-auto py-8">
+          <div className="bg-gray-900 p-6 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto m-4">
+            <h2 className="text-2xl font-bold mb-6 text-white sticky top-0 bg-gray-900 py-2 z-10">Edit Category</h2>
+            <NewEditCategory 
               initialData={categoryState.categoryToEdit}
               onCancel={handleCancelEditCategory} 
               onSave={handleUpdateCategory} 
