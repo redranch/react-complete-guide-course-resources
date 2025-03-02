@@ -1,21 +1,19 @@
-import React from 'react';
-import Button from "./Button";
+import Button from "../ui/Button";
 
-interface CategoriesSidebarProps {
-    onAddClick: () => void;
-    categories: any[];
-    onSelectCategory: (categoryId: string) => void;
-    selectedCategoryId: string;
-}
-
-function CategoriesSidebar({ onAddClick, categories, onSelectCategory, selectedCategoryId }: CategoriesSidebarProps) {
+function CategoriesSidebar({ onAddClick, categories, onSelectCategory, selectedCategoryId }) {
     return (
-        <aside className="bg-black md:w-72 h-full p-4 text-gray-100 border-r border-gray-800">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4 text-white">Categories</h2>
-            <div className="bg-black p-2 flex justify-left items-center">
-                <Button variant="primary" onClick={onAddClick}>Add Category</Button>
+        <aside className="bg-black md:w-72 h-full border-r border-gray-800">
+            <div className="p-8 pb-4 flex justify-between items-center">
+                <h2 className="text-3xl font-bold text-white font-sans">Categories</h2>
+                <button 
+                    onClick={onAddClick}
+                    className="w-8 h-8 rounded-full bg-red-800 text-white flex items-center justify-center hover:bg-red-900 transition-colors"
+                    title="Add Category"
+                >
+                    <span className="text-xl font-bold">+</span>
+                </button>
             </div>
-            <ul className="mt-4 space-y-2 overflow-y-auto max-h-[calc(100vh-180px)]">
+            <ul className="px-8 space-y-2 overflow-y-auto max-h-[calc(100vh-120px)]">
                 {categories.map((category) => (
                     <li 
                         key={category.id} 
@@ -35,4 +33,6 @@ function CategoriesSidebar({ onAddClick, categories, onSelectCategory, selectedC
             </ul>
         </aside>
     );
-} 
+}
+
+export default CategoriesSidebar;

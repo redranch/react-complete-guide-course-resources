@@ -1,8 +1,8 @@
-import CategoriesSidebar from "./components/CategoriesSidebar";
-import NoCategorySelected from "./components/NoCategorySelected";
+import CategoriesSidebar from "./components/layout/CategoriesSidebar";
+import NoCategorySelected from "./components/layout/NoCategorySelected";
 import { useState } from "react";
-import NewEditCategory from "./components/NewEditCategory";
-import SelectedCategoryDetails from "./components/SelectedCategoryDetails";
+import NewEditCategory from "./components/categories/NewEditCategory";
+import SelectedCategoryDetails from "./components/categories/SelectedCategoryDetails";
 
 function App() {
   const [categoryState, setCategoryState] = useState({

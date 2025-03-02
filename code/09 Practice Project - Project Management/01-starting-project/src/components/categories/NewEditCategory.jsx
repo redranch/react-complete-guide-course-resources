@@ -1,6 +1,6 @@
-import Input from "./Input";
-import Button from "./Button";
-import Modal from "./Modal";
+import Input from "../ui/Input";
+import Button from "../ui/Button";
+import Modal from "../ui/Modal";
 import { useRef, useEffect, useState } from "react";
 
 function NewEditCategory({ onCancel, onSave, initialData, isEditing }) {

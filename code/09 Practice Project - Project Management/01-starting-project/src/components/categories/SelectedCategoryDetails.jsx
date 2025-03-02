@@ -1,5 +1,8 @@
-import Button from "./Button";
-import { useState, useEffect, useRef } from "react";
+import Button from "../ui/Button";
+import { useState, useEffect } from "react";
+import ItemForm from "../items/ItemForm";
+import ItemList from "../items/ItemList";
+import SubcategoryTabs from "./SubcategoryTabs";
 
 function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUpdateItems }) {
   const [isEditingDate, setIsEditingDate] = useState(false);
@@ -7,7 +10,6 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [selectedNestedSubcategory, setSelectedNestedSubcategory] = useState(null);
   const [updatedCategory, setUpdatedCategory] = useState(category);
-  const itemInputRef = useRef(null);
   
   const formattedDate = new Date(dueDate).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -64,10 +66,7 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
   }, [selectedSubcategory]);
 
   // Function to add an item to the selected subcategory or nested subcategory
-  function handleAddItem() {
-    if (!itemInputRef.current || !itemInputRef.current.value.trim()) return;
-    
-    const itemText = itemInputRef.current.value.trim();
+  function handleAddItem(itemText) {
     const newItem = {
       id: crypto.randomUUID(),
       text: itemText
@@ -130,9 +129,6 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
       );
       setSelectedNestedSubcategory(updatedNestedSubcategory);
     }
-    
-    // Clear the input
-    itemInputRef.current.value = '';
     
     // Update the parent component
     onUpdateItems(updatedCategoryData);
@@ -286,85 +282,34 @@ function SelectedCategoryDetails({ category, onBackClick, onDelete, onEdit, onUp
             <h2 className="text-xl mb-4 text-white">Subcategories</h2>
             
             {/* Main Subcategory Tabs */}
-            <div className="flex border-b border-gray-800 mb-4 overflow-x-auto scrollbar-thin pb-1">
-              {updatedCategory.subcategories.map(subcategory => (
-                <button
-                  key={subcategory.id}
-                  onClick={() => setSelectedSubcategory(subcategory)}
-                  className={`py-2 px-4 mr-2 rounded-t-lg transition-colors flex-shrink-0 ${
-                    selectedSubcategory?.id === subcategory.id
-                      ? 'bg-red-900 text-white font-medium'
-                      : 'bg-gray-900 text-gray-400 hover:bg-gray-800'
-                  }`}
-                >
-                  {subcategory.name}
-                </button>
-              ))}
-            </div>
+            <SubcategoryTabs 
+              subcategories={updatedCategory.subcategories}
+              selectedId={selectedSubcategory?.id}
+              onSelect={setSelectedSubcategory}
+            />
             
-            {/* Nested Subcategory Tabs (only if selected subcategory has nested subcategories) */}
+            {/* Nested Subcategory Tabs */}
             {selectedSubcategory && selectedSubcategory.subcategories && selectedSubcategory.subcategories.length > 0 && (
-              <div className="flex border-b border-gray-800 mb-4 pl-4 overflow-x-auto scrollbar-thin pb-1">
-                {selectedSubcategory.subcategories.map(nestedSub => (
-                  <button
-                    key={nestedSub.id}
-                    onClick={() => setSelectedNestedSubcategory(nestedSub)}
-                    className={`py-1 px-3 mr-2 rounded-t-lg transition-colors text-sm flex-shrink-0 ${
-                      selectedNestedSubcategory?.id === nestedSub.id
-                        ? 'bg-red-800 text-white font-medium'
-                        : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                    }`}
-                  >
-                    {nestedSub.name}
-                  </button>
-                ))}
-              </div>
+              <SubcategoryTabs 
+                subcategories={selectedSubcategory.subcategories}
+                selectedId={selectedNestedSubcategory?.id}
+                onSelect={setSelectedNestedSubcategory}
+                isNested={true}
+              />
             )}
             
             {/* Content Display */}
             {contentToDisplay ? (
               <div className="bg-gray-900 p-4 rounded">
                 {/* Item Input Form */}
-                <div className="mb-4 flex gap-2">
-                  <input
-                    type="text"
-                    ref={itemInputRef}
-                    placeholder="Add a new item..."
-                    className="flex-1 p-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleAddItem();
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="secondary"
-                    onClick={handleAddItem}
-                  >
-                    Add Item
-                  </Button>
-                </div>
+                <ItemForm onAddItem={handleAddItem} />
                 
-                {contentToDisplay.items.length > 0 ? (
-                  <ul className="space-y-2 max-h-80 overflow-y-auto scrollbar-thin">
-                    {contentToDisplay.items.map(item => (
-                      <li key={item.id} className="bg-black p-3 rounded text-gray-300 flex justify-between items-center">
-                        <span>{item.text}</span>
-                        <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="text-red-500 hover:text-red-700 text-sm"
-                        >
-                          Remove
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-gray-400 italic bg-black p-3 rounded">
-                    No items in this {selectedNestedSubcategory ? "nested subcategory" : "subcategory"} yet. 
-                    Add items using the form above.
-                  </p>
-                )}
+                {/* Items List */}
+                <ItemList 
+                  items={contentToDisplay.items} 
+                  onRemoveItem={handleRemoveItem}
+                  isNested={!!selectedNestedSubcategory}
+                />
               </div>
             ) : (
               <p className="text-gray-400 italic bg-gray-900 p-4 rounded">
