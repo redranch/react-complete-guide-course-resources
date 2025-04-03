@@ -272,6 +272,37 @@ function App() {
   );
 
   /**
+   * Creates a new category from TikTok suggestions
+   * 
+   * @param {Object} categoryData - The category object to create
+   * @returns {Promise<Object|null>} - Promise resolving to the created category or null
+   * 
+   * This function:
+   * 1. Generates a unique ID for the category
+   * 2. Adds it to the categories array
+   * 3. Returns the newly created category
+   */
+  function handleCreateCategoryFromSuggestion(categoryData) {
+    return new Promise((resolve) => {
+      // Create new category with unique ID
+      const newCategory = {
+        ...categoryData,
+        id: crypto.randomUUID(),
+        subcategories: categoryData.subcategories || []
+      };
+
+      // Add to categories array
+      setCategoryState(prev => ({
+        ...prev,
+        categories: [...prev.categories, newCategory]
+      }));
+
+      // Return the newly created category (including the generated ID)
+      resolve(newCategory);
+    });
+  }
+
+  /**
    * Conditional rendering logic to determine what to show in the main content area
    * 
    * Three possible states:
@@ -310,6 +341,8 @@ function App() {
         isImporting={categoryState.isImporting}
         onFileImport={handleFileImport}
         hasCategories={categoryState.categories.length > 0}
+        categories={categoryState.categories}
+        onCreateCategory={handleCreateCategoryFromSuggestion}
       />
     );
   }
